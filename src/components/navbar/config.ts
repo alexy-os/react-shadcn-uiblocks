@@ -12,6 +12,7 @@ export type NavItem = BaseNavigationItem & {
 
 export type ActionItem = BaseNavigationItem & {
   icon?: () => ReactNode;
+  size?: "sm" | "md" | "lg";
   variant?: "default" | "outline" | "ghost";
   className?: string;
   hideOnMobile?: boolean;
@@ -34,7 +35,8 @@ export const ACTION_ITEMS: ActionItem[] = [
   {
     path: "https://ui.pro.hinddy.com/",
     label: "UI Pro",
+    size: "sm",
     variant: "default",
-    className: "hidden md:flex bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground/90 transition-colors rounded-xl",
+    className: "hidden md:flex bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground/90 transition-colors rounded-lg",
   },
 ]; 
