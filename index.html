@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>buildy/ui</title>
+  <meta name="description" content="BuildY/UI is a library of components for building modern websites.">
+  <script>
+    (function() {
+      try {
+        const appSettings = JSON.parse(localStorage.getItem('appSettings') || '{}');
+        const savedTheme = appSettings.theme;
+        const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        
+        if (savedTheme === "dark" || (!savedTheme && systemDark)) {
+          document.documentElement.classList.add("dark");
+        }
+        
+        window.__INITIAL_THEME__ = savedTheme || (systemDark ? "dark" : "light");
+      } catch (e) {
+        console.error("Theme initialisation failed:", e);
+      }
+    })();
+  </script>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMzN2JjZjciIHN0cm9rZS13aWR0aD0iMi41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLWNoYXJ0LW5vLWF4ZXMtZ2FudHQiPjxwYXRoIGQ9Ik04IDZoMTAiLz48cGF0aCBkPSJNNiAxMmg5Ii8+PHBhdGggZD0iTTExIDE4aDciLz48L3N2Zz4=" />
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+</html> 

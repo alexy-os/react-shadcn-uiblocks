@@ -1,0 +1,7 @@
+.manual/
+.vscode/
+.env
+node_modules/
+bun.lockb
+.cursorignore
+.vercelignore
