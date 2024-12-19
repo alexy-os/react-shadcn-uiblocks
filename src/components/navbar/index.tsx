@@ -40,8 +40,8 @@ export function Navbar({ className }: NavbarProps) {
                 className={item.className}
                 asChild
               >
-                <Boxes className="w-4 h-4 stroke-1" />
                 <Link to={item.path}>
+                <Boxes className="w-4 h-4 stroke-1" />
                   {item.label}
                 </Link>
               </Button>
