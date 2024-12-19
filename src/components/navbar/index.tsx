@@ -36,6 +36,7 @@ export function Navbar({ className }: NavbarProps) {
             {ACTION_ITEMS.map((item) => (
               <Button
                 key={item.path}
+                size={item.size}
                 variant={item.variant}
                 className={item.className}
                 asChild
