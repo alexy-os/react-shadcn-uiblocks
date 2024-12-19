@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Boxes } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DarkMode } from "../elements/dark-mode";
 import { MobileSheet } from "./mobile-sheet";
@@ -39,6 +40,7 @@ export function Navbar({ className }: NavbarProps) {
                 className={item.className}
                 asChild
               >
+                <Boxes className="w-4 h-4 stroke-1" />
                 <Link to={item.path}>
                   {item.label}
                 </Link>
