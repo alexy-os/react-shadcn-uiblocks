@@ -13,22 +13,44 @@
 ## Rules
 
 ### Component Structure
-1. **Naming**
-   - Use semantic names (e.g., Hero, BlogSection)
-   - Group by purpose (marketing/, blocks/, elements/)
-   - Avoid generic names (Container, Grid, Default)
+1. **Rules**
+   - Rewrite all examples using these rules
+   - Remove all unnecessary effects: shadows, animations, gradients and so on
+   - The following conditions must be strictly observed
 
 2. **Content**
+   - Always create `content` for all components
    - Define as lowercase constant only: `const content`
-   - Add `id` required
+   - For `map` elements, always add `id`
    - Use `as const` assertion
    - Place inside component file
    - Structure content by sections
+
+*Example*
+```tsx
+const content: Content = {
+  title: "Explore Our",
+  description: "Simplify your business.",
+  buttons: [
+    {
+      id: "button1",
+      text: "Learn More",
+      variant: "default"
+    },
+    {
+      id: "button2",
+      text: "Get Started",
+      variant: "outline"
+    }
+  ]
+} as const;
+```
 
 3. **Types**
    - Define explicit types for content objects
    - Use const assertions for literal types
    - Prefer union types over enums
+   - For icon properties, use `icon: React.ReactNode;` to allow any valid React element
 
 ### HTML Semantics
 1. **Structure**
@@ -47,10 +69,12 @@
 
 ### Dynamic Rendering
 1. **Mapping**
-   - Use unique keys (prefer content-based over index)
+   - Use unique keys (prefer content-based over id)
    ```tsx
-   {items.map(({ id, content }) => (
-     <Component key={id || content} />
+   {buttons?.map(({ id, text, icon }) => (
+     <Button key={id} icon={icon}>
+       {text}
+     </Button>
    ))}
    ```
 
@@ -66,7 +90,7 @@
 
 2. **Typography**
    ```tsx
-   heading: "text-3xl md:text-4xl lg:text-6xl font-bold"
+   heading: "text-3xl md:text-4xl lg:text-5xl font-bold"
    body: "text-base text-muted-foreground"
    ```
 
@@ -113,46 +137,64 @@
 - Must use shadcn/ui components
 - Must follow container pattern
 
----
+## Strict Naming Conventions
 
-## File Structure
-```
-components/
-  marketing/
-    Hero.tsx
-    BlogSection.tsx
-  blocks/
-    Features.tsx
-    Pricing.tsx
-  elements/
-    Card.tsx
-    Button.tsx
-```
+### Types and Content
+1. **Content Declaration**
+   - Must use lowercase `content` for constant (both default and internal)
+   - Must use uppercase `Content` for type
+   - Must use `as const` assertion
+   ```typescript
+   // Type definition
+   type Content = {
+     title: string;
+     description: string;
+     buttons: Array<ButtonProps>;
+   };
 
----
+   // Internal content
+   const content: Content = {
+     title: "Default Title",
+     description: "Default Description",
+     buttons: []
+   } as const;
+   ```
 
-## Content Structure
+2. **Component Structure**
+   - Must include ComponentPropsWithoutRef
+   - Must use content spread with destructuring
+   - Must use return statement
+   ```typescript
+   type ComponentProps = React.ComponentPropsWithoutRef<"section"> & Partial<Content>;
+
+   export const Component = (props: ComponentProps) => {
+     const { title, description, buttons } = {
+       ...content,
+       ...props
+     };
+
+     return (
+       // JSX
+     );
+   };
+   ```
+
+### Component Base Types
+
 ```typescript
-const content = {
-  section: {
-    title: string,
-    description: string
-  },
-  elements: {
-    buttons: Array<ButtonProps>,
-    cards: Array<CardProps>
-  }
-} as const;
+// Define base component props with semantic root element
+type ComponentProps<T extends keyof JSX.IntrinsicElements = "section"> = 
+  React.ComponentPropsWithoutRef<T> & Partial<Content>;
+
+// Usage examples
+export const HeroSection = (props: ComponentProps) => {
+  return <section {...props}>{/* content */}</section>;
+};
+
+export const MainHeader = (props: ComponentProps<"header">) => {
+  return <header {...props}>{/* content */}</header>;
+};
 ```
 
----
-
-## Styling Classes
-```typescript
-const common_classes = {
-  section: "w-full py-16 lg:py-32",
-  container: "container mx-auto px-4 md:px-6 lg:px-8",
-  heading: "text-3xl md:text-4xl lg:text-6xl font-bold",
-  description: "text-lg text-muted-foreground"
-} as const;
-```
+> Note: Use appropriate semantic HTML root element based on the component's purpose 
+> (section, article, header, etc). Default is "section" for block-level components.

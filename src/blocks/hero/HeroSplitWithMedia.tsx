@@ -1,35 +1,65 @@
-import { Button } from "@/components/ui/button";
+import { Button, type ButtonProps } from "@/components/ui/button";
 
-const content = {
+type Content = {
+  title: string;
+  description: string;
+  buttons?: (ButtonProps & {
+    id: string;
+    text: string;
+    icon?: React.ReactNode;
+  })[];
+    image: {
+        src: string;
+        alt: string;
+        className: string;
+    };
+};
+
+const content: Content = {
     title: "Transform Your Workflow",
     description: "Streamline your development process with our powerful tools and components.",
     buttons: [
-        { text: "Try Now" },
-        { text: "View Demo" }
-    ]
+        { id: "button1", text: "Try Now", variant: "default" },
+        { id: "button2", text: "View Demo", variant: "outline" }
+    ],
+    image: {
+        src: "https://placehold.co/400/?text=Hero Image",
+        alt: "Hero Image",
+        className: "w-full h-full object-cover rounded-lg"
+    }
 } as const;
 
-export const HeroSplitWithMedia = () => (
-    <section className="w-full py-16 lg:py-32">
-        <div className="container mx-auto px-4 md:px-6 lg:px-8">
+type HeroSplitWithMediaProps = React.ComponentPropsWithoutRef<"section"> & Partial<Content>;
+
+export const HeroSplitWithMedia = (props: HeroSplitWithMediaProps) => {
+    const { title, description, buttons, image } = {
+        ...content,
+        ...props
+    };
+
+    return (
+        <section className="w-full py-16 lg:py-32">
+            <div className="container mx-auto px-4 md:px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
                 <div className="flex flex-col items-start space-y-4">
                     <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold">
-                        {content.title}
+                        {title}
                     </h2>
                     <p className="text-lg">
-                        {content.description}
+                        {description}
                     </p>
                     <div className="flex gap-4">
-                        {content.buttons?.map((button, index) => (
-                            <Button key={`${button.text}-${index}`} variant={index === 1 ? "outline" : undefined}>
+                        {buttons?.map((button) => (
+                            <Button key={button.id} variant={button.variant} size={button.size} className={button.className}>
                                 {button.text}
                             </Button>
                         ))}
                     </div>
                 </div>
-                <div className="aspect-square rounded bg-muted" />
+                <div className="aspect-square rounded bg-muted">
+                    <img src={image.src} alt={image.alt} className={image.className} />
+                </div>
             </div>
         </div>
     </section>
-);
+)};

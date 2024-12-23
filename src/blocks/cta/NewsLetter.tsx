@@ -1,16 +1,38 @@
-import { Button } from "@/components/ui/button";
+import { Button, type ButtonProps } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ArrowRight } from "lucide-react";
 
-export const NewsLetter = () => {
+type Content = {
+  title: string;
+  description: string;
+  button: (ButtonProps & {
+    text: string;
+    icon?: React.ReactNode;
+  });
+};
+
+const content: Content = {
+  title: "Keep up to date with all new products",
+  description: "No spam. Only novelties and service improvement",
+  button: { text: "Subscribe", variant: "default", icon: <ArrowRight /> }
+} as const
+
+type NewsLetterProps = React.ComponentPropsWithoutRef<"section"> & Partial<Content>
+
+export const NewsLetter = (props: NewsLetterProps) => {
+  const { title, description, button } = {
+    ...content,
+    ...props
+  }
 
   return (
     <section className="w-full py-16 lg:py-32">
       <div className="container mx-auto px-4 md:px-6 lg:px-8">
         <h3 className="text-center text-4xl md:text-5xl font-bold">
-            Keep up to date with all new products
+            {title}
         </h3>
         <p className="text-xl text-muted-foreground text-center mt-4 mb-8">
-            No spam. Only novelties and service improvement
+            {description}
         </p>
 
         <form
@@ -21,7 +43,7 @@ export const NewsLetter = () => {
             className="bg-secondary dark:bg-muted/80"
             aria-label="email"
           />
-          <Button>Subscribe</Button>
+          <Button variant={button.variant}>{button.text} {button.icon}</Button>
         </form>
       </div>
     </section>
