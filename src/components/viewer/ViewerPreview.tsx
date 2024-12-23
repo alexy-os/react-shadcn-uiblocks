@@ -95,7 +95,7 @@ export const ViewerPreview: React.FC<ViewerPreviewProps> = ({ children }) => {
 
     return (
         <div className="relative bg-background">
-            {<div className="absolute right-4 top-4 z-10">
+            {<div className="absolute right-4 top-4 z-50">
                 <Button
                     variant="outline"
                     size="icon"

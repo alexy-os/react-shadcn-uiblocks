@@ -2,7 +2,7 @@
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { ClipboardIcon, CodeIcon, EyeIcon } from 'lucide-react';
+import { Copy, CodeIcon, EyeIcon } from 'lucide-react';
 import React from 'react';
 import { useEffect } from 'react';
 import ReactDOMServer from 'react-dom/server';
@@ -11,6 +11,7 @@ import { HeaderVariants, ViewerVariants } from './ViewerVariants';
 import { ViewerPreview } from './ViewerPreview';
 import { ViewerCode } from './ViewerCode';
 import beautify from 'js-beautify';
+import { getViewScript, hasViewScript } from '@/utils/viewScript';
 
 const LOCAL_STORAGE_KEY = 'preferred-code-mode';
 
@@ -21,6 +22,11 @@ const Viewer = React.forwardRef<HTMLDivElement, ViewerProps>(
             if (typeof window === 'undefined') return 'react';
             return (localStorage.getItem(LOCAL_STORAGE_KEY) as ViewMode) || 'react';
         });
+        const [currentComponent, setCurrentComponent] = React.useState<string>('');
+        const [scriptContent, setScriptContent] = React.useState<string>('');
+        const [htmlCode, setHtmlCode] = React.useState<string>('');
+        const [isCopying, setIsCopying] = React.useState(false);
+        const [isScriptCopying, setIsScriptCopying] = React.useState(false);
 
         const handleCodeModeChange = React.useCallback((newMode: ViewMode) => {
             setMode('preview');
@@ -30,16 +36,29 @@ const Viewer = React.forwardRef<HTMLDivElement, ViewerProps>(
 
         const handleCopy = React.useCallback(async () => {
             const textToCopy = codeMode === 'react' ? code : getHtmlCode();
+            setIsCopying(true);
             await navigator.clipboard.writeText(textToCopy);
-            console.log('Code copied to clipboard');
+            setTimeout(() => {
+                setIsCopying(false);
+            }, 1000);
         }, [code, codeMode]);
 
         const getHtmlCode = React.useCallback(() => {
             if (typeof preview === 'string') return preview;
+            if (!preview || !React.isValidElement(preview)) return '';
 
-            const rawHtml = ReactDOMServer.renderToStaticMarkup(preview as React.ReactElement);
+            const currentComp = typeof preview.type === 'function' 
+                ? preview.type.name 
+                : preview.type;
 
-            // Improved regex-based pretty-printing
+            // Get ViewScript if available
+            const viewScript = getViewScript(currentComp);
+            const script = viewScript ? viewScript({ componentName: currentComp }) : '';
+            
+            setCurrentComponent(currentComp);
+            setScriptContent(script);
+
+            let rawHtml = ReactDOMServer.renderToStaticMarkup(preview as React.ReactElement);
             const options = { indent_size: 2, space_in_empty_paren: true }
             const prettyHtml = beautify.html(rawHtml, options);
 
@@ -56,6 +75,34 @@ const Viewer = React.forwardRef<HTMLDivElement, ViewerProps>(
                 setCodeMode('react');
             }
         }, [htmlBtn]);
+
+        useEffect(() => {
+            if (typeof preview === 'string') {
+                setHtmlCode(preview);
+                return;
+            }
+            if (!preview || !React.isValidElement(preview)) {
+                setHtmlCode('');
+                return;
+            }
+
+            const currentComp = typeof preview.type === 'function' 
+                ? preview.type.name 
+                : preview.type;
+
+            // Get ViewScript if available
+            const viewScript = getViewScript(currentComp);
+            const script = viewScript ? viewScript({ componentName: currentComp }) : '';
+            
+            setCurrentComponent(currentComp);
+            setScriptContent(script);
+
+            let rawHtml = ReactDOMServer.renderToStaticMarkup(preview as React.ReactElement);
+            const options = { indent_size: 2, space_in_empty_paren: true }
+            const prettyHtml = beautify.html(rawHtml, options);
+
+            setHtmlCode(prettyHtml);
+        }, [preview]);
 
         return (
             <div
@@ -121,10 +168,6 @@ const Viewer = React.forwardRef<HTMLDivElement, ViewerProps>(
                                 )}
                             </Button>
                         ) : null}
-
-                        <Button variant="ghost" size="sm" onClick={handleCopy}>
-                            <ClipboardIcon className="h-4 w-4" />
-                        </Button>
                     </div>
                 </div>
 
@@ -132,11 +175,60 @@ const Viewer = React.forwardRef<HTMLDivElement, ViewerProps>(
                     {mode === 'preview' ? (
                         <ViewerPreview>{preview}</ViewerPreview>
                     ) : (
-                        codeMode === 'react' ? (
-                            <ViewerCode code={code} language={language} />
-                        ) : (
-                            <ViewerCode code={getHtmlCode()} language="html" />
-                        )
+                        <>
+                            <div className="flex flex-row justify-between items-center border-t border-b border-border px-2 sm:px-4 py-2">
+                                <h3 className="text-xs font-bold text-muted-foreground">
+                                    {codeMode === 'react' ? 'React' : 'Html'} Code
+                                </h3>
+                                <div className="flex justify-end">
+                                    <Button 
+                                        variant="secondary" 
+                                        size="sm"
+                                        onClick={handleCopy}
+                                        className="flex h-7 sm:h-5 items-center font-normal gap-1 text-xs sm:text-[.55em] rounded-xs"
+                                    >
+                                        <Copy className="!h-3 !w-3" />
+                                        <span className="ml-1">
+                                            {isCopying ? "Copied!" : `Copy ${codeMode === 'react' ? 'Code' : 'Html'}`}
+                                        </span>
+                                    </Button>
+                                </div>
+                            </div>
+                            {codeMode === 'react' ? (
+                                <ViewerCode code={code} language={language} />
+                            ) : (
+                                <>
+                                    <ViewerCode code={htmlCode} language="html" />
+                                    {hasViewScript(currentComponent) && (
+                                        <>
+                                            <div className="flex flex-row justify-between items-center border-t border-b border-border px-2 sm:px-4 py-2">
+                                                <h3 className="text-xs font-bold text-muted-foreground">Script</h3>
+                                                <div className="flex justify-end w-full">
+                                                <Button 
+                                                    variant="secondary" 
+                                                    size="sm" 
+                                                    onClick={async () => {
+                                                        setIsScriptCopying(true);
+                                                        await navigator.clipboard.writeText(scriptContent);
+                                                        setTimeout(() => {
+                                                            setIsScriptCopying(false);
+                                                        }, 1000);
+                                                    }}
+                                                    className="flex h-7 sm:h-5 items-center font-normal gap-1 text-xs sm:text-[.55em] rounded-xs"
+                                                >
+                                                    <Copy className="!h-3 !w-3" />
+                                                    <span className="ml-1">
+                                                        {isScriptCopying ? "Copied!" : "Copy Script"}
+                                                    </span>
+                                                </Button>
+                                              </div>
+                                            </div>
+                                            <ViewerCode code={scriptContent} language="javascript" />
+                                        </>
+                                    )}
+                                </>
+                            )}
+                        </>
                     )}
                 </div>
             </div>

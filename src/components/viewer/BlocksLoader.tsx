@@ -5,6 +5,7 @@ interface Block {
     title: string;
     component: ReactElement;
     code: string;
+    javascript?: string;
 }
 
 type BlocksByRoute = {

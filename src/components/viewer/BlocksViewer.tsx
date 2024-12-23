@@ -1,6 +1,6 @@
 import { useLocation } from 'react-router-dom';
 import { BlocksLoader } from './BlocksLoader';
-import { Viewer } from '@/components/viewer';
+import { Viewer } from './index';
 
 export function BlocksViewer() {
     const location = useLocation();
@@ -9,13 +9,6 @@ export function BlocksViewer() {
     // console.log(BlocksLoader);
     
     const blocks = BlocksLoader[cleanPath];
-
-    // Define configurations for different categories
-    const viewerConfig = {
-        navbar: { htmlBtn: false },
-        // It is possible to add other categories as needed
-        // other: { someOption: true }
-    } as const;
 
     if (!blocks) {
         return <div>Category ui components not found</div>;
@@ -31,7 +24,6 @@ export function BlocksViewer() {
                             title={example.title}
                             code={example.code}
                             preview={example.component}
-                            {...viewerConfig[cleanPath as keyof typeof viewerConfig]}
                         />
                     ))}
                 </div>
