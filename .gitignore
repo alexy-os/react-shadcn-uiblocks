@@ -2,6 +2,7 @@
 .vscode/
 .env
 node_modules/
+dist/
 bun.lockb
 .cursorignore
 .vercelignore
