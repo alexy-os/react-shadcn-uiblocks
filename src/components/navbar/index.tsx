@@ -123,7 +123,7 @@ const DesktopNavigation = () => {
 export function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-ato px-4 flex h-14 items-center">
+      <div className="container mx-auto px-4 flex h-14 items-center">
         <div className="mr-4 flex">
           <Brand />
         </div>
@@ -132,9 +132,7 @@ export function Navbar() {
 
         <div className="flex flex-1 items-center justify-end space-x-2">
           <DarkMode />
-          <div className="flex items-center md:hidden">
             <MobileSheet />
-          </div>
           {ACTION_ITEMS.map((item) => (
             <Button
               key={item.path}

@@ -34,8 +34,8 @@ export const NAVIGATION_ITEMS: NavItem[] = [
 
 export const ACTION_ITEMS: ActionItem[] = [
   {
-    path: "https://ui.hinddy.com/",
-    label: "UI Lite",
+    path: "https://ui.pro.hinddy.com/",
+    label: "BuildY/UI Pro",
     size: "sm",
     variant: "default",
     className: "hidden md:flex bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground/90 transition-colors rounded-lg",
