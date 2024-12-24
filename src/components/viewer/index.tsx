@@ -2,7 +2,13 @@
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Copy, CodeIcon, EyeIcon } from 'lucide-react';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+  } from "@/components/ui/tooltip"  
+import { Copy, CodeIcon, EyeIcon, Database } from 'lucide-react';
 import React from 'react';
 import { useEffect } from 'react';
 import ReactDOMServer from 'react-dom/server';
@@ -12,6 +18,7 @@ import { ViewerPreview } from './ViewerPreview';
 import { ViewerCode } from './ViewerCode';
 import beautify from 'js-beautify';
 import { getViewScript, hasViewScript } from '@/utils/viewScript';
+import { getContextContent } from '@/utils/content';
 
 const LOCAL_STORAGE_KEY = 'preferred-code-mode';
 
@@ -27,6 +34,7 @@ const Viewer = React.forwardRef<HTMLDivElement, ViewerProps>(
         const [htmlCode, setHtmlCode] = React.useState<string>('');
         const [isCopying, setIsCopying] = React.useState(false);
         const [isScriptCopying, setIsScriptCopying] = React.useState(false);
+        const [isJsonCopying, setIsJsonCopying] = React.useState(false);
 
         const handleCodeModeChange = React.useCallback((newMode: ViewMode) => {
             setMode('preview');
@@ -104,6 +112,37 @@ const Viewer = React.forwardRef<HTMLDivElement, ViewerProps>(
             setHtmlCode(prettyHtml);
         }, [preview]);
 
+        // Получаем контекстный контент для компонента
+        const contextContent = React.useMemo(() => {
+            if (!currentComponent) return null;
+            
+            const content = getContextContent(currentComponent);
+            return content ? JSON.stringify(content, null, 2) : null;
+        }, [currentComponent]);
+
+        // Модифицируем preview с контекстным контентом
+        const enhancedPreview = React.useMemo(() => {
+            if (!preview || !React.isValidElement(preview)) return preview;
+
+            const currentComp = typeof preview.type === 'function' 
+                ? preview.type.name 
+                : preview.type;
+
+            const contextContent = getContextContent(currentComp);
+            
+            if (!contextContent) return preview;
+
+            // Безопасное клонирование с правильной типизацией
+            return React.cloneElement<any>(
+                preview,
+                {
+                    ...preview.props as object, // приводим к object
+                    ...contextContent as object // приводим к object
+                }
+            );
+
+        }, [preview]);
+
         return (
             <div
                 ref={ref}
@@ -124,6 +163,23 @@ const Viewer = React.forwardRef<HTMLDivElement, ViewerProps>(
                             )}
                             <span className="ml-2">{mode === 'preview' ? 'Code' : 'Preview'}</span>
                         </Button>
+                        {contextContent && (
+                            <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger>
+                                    <span
+                                        className="text-xs flex items-center gap-1 text-green-500 mr-1"
+                                        onClick={() => setMode(mode === 'preview' ? 'code' : 'preview')}
+                                    >
+                                        <Database className="h-4 w-4" />
+                                    </span>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                <p>See code and pre-installed global content data</p>
+                                </TooltipContent>
+                            </Tooltip>
+                            </TooltipProvider>
+                        )}
                         {title && (
                             <span className="text-sm hidden md:flex text-muted-foreground">{title}</span>
                         )}
@@ -173,7 +229,9 @@ const Viewer = React.forwardRef<HTMLDivElement, ViewerProps>(
 
                 <div className="overflow-x-auto">
                     {mode === 'preview' ? (
-                        <ViewerPreview>{preview}</ViewerPreview>
+                        <ViewerPreview>
+                            {enhancedPreview}
+                        </ViewerPreview>
                     ) : (
                         <>
                             <div className="flex flex-row justify-between items-center border-t border-b border-border px-2 sm:px-4 py-2">
@@ -226,6 +284,36 @@ const Viewer = React.forwardRef<HTMLDivElement, ViewerProps>(
                                             <ViewerCode code={scriptContent} language="javascript" />
                                         </>
                                     )}
+                                </>
+                            )}
+                            {contextContent && (
+                                <>
+                                    <div className="flex flex-row justify-between items-center border-t border-b border-border px-2 sm:px-4 py-2">
+                                        <h3 className="text-xs font-bold text-muted-foreground">
+                                        Example of a global Data Content
+                                        </h3>
+                                        <Button 
+                                            variant="secondary" 
+                                            size="sm"
+                                            onClick={async () => {
+                                                setIsJsonCopying(true);
+                                                await navigator.clipboard.writeText(contextContent);
+                                                setTimeout(() => {
+                                                    setIsJsonCopying(false);
+                                                }, 1000);
+                                            }}
+                                            className="flex h-7 sm:h-5 items-center font-normal gap-1 text-xs sm:text-[.55em] rounded-xs"
+                                        >
+                                            <Copy className="!h-3 !w-3" />
+                                            <span className="ml-1">
+                                                {isJsonCopying ? "Copied!" : "Copy Content"}
+                                            </span>
+                                        </Button>
+                                    </div>
+                                    <ViewerCode 
+                                        code={contextContent} 
+                                        language="json"
+                                    />
                                 </>
                             )}
                         </>

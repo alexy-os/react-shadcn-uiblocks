@@ -37,14 +37,12 @@ const getRouteFromPath = (path: string): string =>
 // Function to process file names
 const getBlockFromFile = (path: string, module: any): Block | null => {
     const fileName = path.split('/').pop()?.replace('.tsx', '') || '';
-    //const isPascalCase = /^[A-Z][a-zA-Z0-9]*$/.test(fileName);
     const pascalCaseName = fileName.replace(/(?:^|-)([a-z])/g, (_, char) => char.toUpperCase());
 
     const Component = module[pascalCaseName] || module[fileName];
 
     if (!Component) {
         console.warn(`⚠️ Component not found in ${fileName}.tsx`);
-        console.log('Available exports:', Object.keys(module));
         return null;
     }
 

@@ -1,7 +1,21 @@
 import { MoveRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, type ButtonProps } from "@/components/ui/button";
 
-const content = {
+type Content = {
+  title: string;
+  button?: (ButtonProps & {
+    text?: string;
+    icon?: React.ReactNode;
+  });
+  articles: {
+    id: string;
+    title: string;
+    description: string;
+    imageAlt: string;
+  }[];
+};
+
+const content: Content = {
   title: "Latest articles",
   button: {
     text: "View all articles",
@@ -29,19 +43,29 @@ const content = {
   ]
 } as const;
 
-export const BlogCardsSection = () => (
+type BlogCardsSectionProps = React.ComponentPropsWithoutRef<"section"> & Partial<Content>;  
+
+export const BlogCardsSection = (props: BlogCardsSectionProps) => {
+  const { title, articles, button } = {
+    ...content,
+    ...props
+  };
+
+  return (
   <section className="w-full py-16 lg:py-32">
     <div className="container mx-auto px-4 md:px-6 lg:px-8 flex flex-col gap-8">
       <header className="flex w-full flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <h2 className="text-3xl md:text-4xl lg:text-6xl font-bold">
-          {content.title}
+          {title}
         </h2>
-        <Button className="gap-4">
-          {content.button.text} {content.button.icon}
-        </Button>
+        {button && (
+          <Button className="gap-4">
+            {button.text} {button.icon}
+          </Button>
+        )}
       </header>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {content.articles?.map((article) => (
+        {articles?.map((article) => (
           <article id={article.id} key={article.id} className="flex flex-col gap-4 hover:opacity-75 cursor-pointer">
             <div 
               className="bg-muted rounded-md aspect-video mb-4"
@@ -53,7 +77,8 @@ export const BlogCardsSection = () => (
             </p>
           </article>
         ))}
+        </div>
       </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};

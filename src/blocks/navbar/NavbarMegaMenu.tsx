@@ -56,7 +56,6 @@ type Content = {
   }[];
 };
 
-// Internal content
 const content: Content = {
   brand: {
     name: "Buildy/UI",

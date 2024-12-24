@@ -1,7 +1,27 @@
 import { ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, type ButtonProps } from "@/components/ui/button";
 
-const content = {
+type Content = {
+  tagline: string;
+  title: string;
+  description: string;
+  button: ButtonProps & {
+    name: string;
+    icon: React.ReactNode;
+  };
+  posts: {
+    id: string;
+    title: string;
+    summary: string;
+    label: string;
+    author: string;
+    published: string;
+    href: string;
+    image: string;
+  }[];
+};
+
+const content: Content = {
   tagline: "Explore Insights",
   title: "Latest Blog Posts",
   description:
@@ -48,29 +68,37 @@ const content = {
   ],
 } as const;
 
-export const BlogPostsGridSection = () => (
+type BlogPostsGridSectionProps = React.ComponentPropsWithoutRef<"section"> & Partial<Content>; 
+
+export const BlogPostsGridSection = (props: BlogPostsGridSectionProps) => {
+  const { tagline, title, description, button, posts } = {
+    ...content,
+    ...props
+  };
+
+  return (
   <section className="w-full py-16 lg:py-32">
     <div className="container mx-auto px-4 md:px-6 lg:px-8 flex flex-col gap-16 text-center">
       <header className="max-w-2xl mx-auto flex flex-col gap-4">
         <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
-          {content.tagline}
+          {tagline}
         </p>
         <h2 className="text-3xl font-bold md:text-4xl lg:text-5xl">
-          {content.title}
+          {title}
         </h2>
         <p className="text-muted-foreground lg:text-lg">
-          {content.description}
+          {description}
         </p>
-        <Button variant={content.button.variant} className="gap-2 self-center">
-          {content.button.name} {content.button.icon}
+        <Button variant={button.variant} className="gap-2 self-center">
+          {button.name} {button.icon}
         </Button>
       </header>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {content.posts.map((post) => (
+        {posts?.map((post) => (
           <a
             key={post.id}
             href={post.href}
-            className="flex flex-col rounded-lg border border-border overflow-hidden hover:shadow-md transition"
+            className="flex flex-col rounded-lg border border-border overflow-hidden"
           >
             <img
               src={post.image}
@@ -90,7 +118,8 @@ export const BlogPostsGridSection = () => (
             </div>
           </a>
         ))}
+        </div>
       </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};

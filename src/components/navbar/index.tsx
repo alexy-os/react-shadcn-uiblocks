@@ -132,7 +132,9 @@ export function Navbar() {
 
         <div className="flex flex-1 items-center justify-end space-x-2">
           <DarkMode />
+          <div className="flex items-center md:hidden">
             <MobileSheet />
+          </div>
           {ACTION_ITEMS.map((item) => (
             <Button
               key={item.path}

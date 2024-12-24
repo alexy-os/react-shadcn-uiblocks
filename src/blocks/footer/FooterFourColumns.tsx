@@ -1,8 +1,16 @@
-import { Volleyball } from "lucide-react";
+import { Volleyball } from "lucide-react";  
 
-const content = {
-  logo: <Volleyball className="mb-4 h-8 w-8" />,
-  slogan: "UI components made easy",
+type Content = {
+  brand: string;
+  description: string;
+  copyright: string;
+  links: { name: string; href: string }[];
+  menu: { title: string; links: { name: string; href: string }[] }[];
+};
+
+const content: Content = {
+  brand: "BuildY/UI",
+  description: "Easily build your website with our UI components",
   copyright: "© 2024 BuildY/UI. All rights reserved.",
   links: [
     { name: 'Terms and Conditions', href: '#' },
@@ -50,15 +58,25 @@ const content = {
   ]
 } as const;
 
-export const FooterFourColumns = () => (
+type FooterFourColumnsProps = React.ComponentPropsWithoutRef<"footer"> & Partial<Content>;
+
+export const FooterFourColumns = (props: FooterFourColumnsProps) => {
+  const { brand, description, copyright, links, menu } = {
+    ...content,
+    ...props
+  };
+
+  return (
   <footer className="w-full py-4 lg:py-8">
     <div className="container mx-auto px-4 md:px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-8 lg:grid-cols-6">
-          <div className="col-span-2 mb-8 lg:mb-0">
-            {content.logo}
-            <p className="font-bold">{content.slogan}</p>
+          <div className="col-span-2">
+            <div className="text-2xl font-bold mb-8 lg:mb-4">
+              <Volleyball className="mr-1 h-8 w-8 inline-block" /> {brand}
+            </div>
+            <p className="text-muted-foreground">{description}</p>
           </div>
-          {content.menu.map((item, sectionIdx) => (
+          {menu?.map((item, sectionIdx) => (
             <div key={sectionIdx}>
               <h3 className="mb-4 font-bold">{item.title}</h3>
               <ul className="space-y-4 text-muted-foreground">
@@ -75,9 +93,9 @@ export const FooterFourColumns = () => (
           ))}
         </div>
         <div className="mt-24 flex flex-col justify-between gap-4 border-t pt-8 text-sm font-medium text-muted-foreground md:flex-row md:items-center">
-          <p>{content.copyright}</p>
+          <p>{copyright}</p>
           <ul className="flex gap-4">
-            {content.links.map((item, Idx) => (
+            {links?.map((item, Idx) => (
               <li key={`${item.name}-${Idx}`} className="underline hover:text-primary">
                 <a href={item.href}>{item.name}</a>
               </li>
@@ -86,4 +104,5 @@ export const FooterFourColumns = () => (
         </div>
     </div>
   </footer>
-);
+  );
+};

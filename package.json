@@ -32,6 +32,8 @@
         "js-beautify": "^1.15.1",
         "lottie-react": "^2.4.0",
         "lucide-react": "^0.468.0",
+        "prismjs": "^1.29.0",
+        "@types/prismjs": "^1.26.5",
         "react-router-dom": "7.0.2",
         "sonner": "^1.7.1",
         "tailwind-merge": "^2.5.5",

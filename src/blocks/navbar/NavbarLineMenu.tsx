@@ -28,7 +28,6 @@ type Content = {
 };
 import { registerViewScript } from '@/utils/viewScript';
 
-// Internal content
 const content: Content = {
   brand: {
     name: "Buildy/UI",

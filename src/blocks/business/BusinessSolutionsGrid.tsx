@@ -2,7 +2,7 @@ import { Bookmark } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 type Content = {
-  promo: string;
+  badge: string;
   title: string;
   description: string;
   cards: {
@@ -15,7 +15,7 @@ type Content = {
 };
 
 const content: Content = {
-  promo: "buildy/ui",
+  badge: "buildy/ui",
   title: "Streamline Your Business Operations",
   description:
     "Managing a business shouldn't be complicated. With Buildy/UI, create seamless workflows and improve efficiency effortlessly.",
@@ -55,25 +55,33 @@ const content: Content = {
   ],
 } as const;
 
-export const BusinessSolutionsGrid = () => (
+type BusinessSolutionsGridProps = React.ComponentPropsWithoutRef<"section"> & Partial<Content>;
+
+export const BusinessSolutionsGrid = (props: BusinessSolutionsGridProps) => {
+  const { badge, title, description, cards } = {
+    ...content,
+    ...props
+  };
+
+  return (
   <section className="w-full py-16 lg:py-32">
     <div className="container mx-auto px-4 md:px-6 lg:px-8">
       <div className="flex flex-col gap-8">
         <header className="flex flex-col gap-4 items-start">
           <Badge className="rounded-full h-6">
-            {content.promo}
+            {badge}
           </Badge>
           <div className="flex flex-col gap-2">
             <h2 className="text-3xl md:text-4xl lg:text-6xl font-bold max-w-xl">
-              {content.title}
+              {title}
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl">
-              {content.description}
+              {description}
             </p>
           </div>
         </header>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {content.cards.map((card) => (
+          {cards?.map((card) => (
             <div
               key={card.id}
               className={`bg-muted rounded p-4 md:p-6 flex flex-col justify-between ${card.className}`}
@@ -93,4 +101,5 @@ export const BusinessSolutionsGrid = () => (
       </div>
     </div>
   </section>
-);
+  );
+};

@@ -1,5 +1,5 @@
 import { ArrowRight, CircleCheck } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, type ButtonProps } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -9,7 +9,21 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
-const content = {
+type Content = {
+  title: string;
+  description: string;
+  plans: {
+    id: string;
+    name: string;
+    description: string;
+    price: string;
+    features: string[];
+    buttonText: string;
+    buttonVariant: ButtonProps['variant'];
+  }[];
+};
+
+const content: Content = {
   title: "Pricing",
   description: "Choose the perfect plan for your needs, whether you're an individual or a team.",
   plans: [
@@ -57,19 +71,29 @@ const content = {
   ],
 } as const;
 
-export const PricingSection = () => (
-  <section className="w-full py-16 lg:py-32">
-    <div className="container mx-auto px-4 md:px-6 lg:px-8">
-      <div className="mx-auto flex max-w-5xl flex-col items-center gap-6 text-center">
-        <h2 className="text-3xl md:text-4xl lg:text-6xl font-bold">
-          {content.title}
-        </h2>
-        <p className="text-muted-foreground lg:text-xl max-w-2xl">
-          {content.description}
-        </p>
+type PricingSectionProps = React.ComponentPropsWithoutRef<"section"> & Partial<Content>;
+
+export const PricingSection = (props: PricingSectionProps) => {
+  const { title, description, plans } = {
+    ...content,
+    ...props
+  };
+
+  return (
+    <section className="w-full py-16 lg:py-32">
+      <div className="container mx-auto px-4 md:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-5xl flex-col items-center gap-6 text-center">
+          <header className="flex flex-col gap-4">
+            <h2 className="text-3xl md:text-4xl lg:text-6xl font-bold">
+              {title}
+            </h2>
+            <p className="text-muted-foreground lg:text-xl max-w-2xl">
+              {description}
+            </p>
+          </header>
         <div className="flex flex-col items-stretch gap-6 md:flex-row">
-          {content.plans.map((plan) => (
-            <Card key={plan.id} className="flex w-80 flex-col justify-between text-left">
+          {plans?.map((plan) => (
+            <Card key={plan.id} className="flex max-w-80 flex-col justify-between text-left">
               <CardHeader>
                 <CardTitle>
                   <p>{plan.name}</p>
@@ -98,8 +122,9 @@ export const PricingSection = () => (
               </CardFooter>
             </Card>
           ))}
+          </div>
         </div>
       </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};

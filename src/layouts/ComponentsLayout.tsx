@@ -3,12 +3,6 @@ import { Outlet } from 'react-router-dom';
 
 export function ComponentsLayout() {
   useEffect(() => {
-    // Динамически загружаем стили и скрипт
-    const highlightStyle = document.createElement('link');
-    highlightStyle.rel = 'stylesheet';
-    highlightStyle.href = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css';
-    document.head.appendChild(highlightStyle);
-
     // Добавляем стили для code-viewer с приоритетом
     const codeViewerStyle = document.createElement('style');
     codeViewerStyle.textContent = `
@@ -28,21 +22,34 @@ export function ComponentsLayout() {
     `;
     document.head.appendChild(codeViewerStyle);
 
+    /* Закомментировали highlight.js так как перешли на Prism
+    const highlightStyle = document.createElement('link');
+    highlightStyle.rel = 'stylesheet';
+    highlightStyle.href = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css';
+    document.head.appendChild(highlightStyle);
+
     const script = document.createElement('script');
     script.src = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js';
     script.onload = () => {
       // @ts-ignore
-      hljs.highlightAll();
+      window.hljs.configure({
+        ignoreUnescapedHTML: true,
+        languages: ['typescript', 'javascript', 'html', 'css', 'jsx', 'tsx']
+      });
+      // @ts-ignore
+      window.hljs.highlightAll();
     };
     document.body.appendChild(script);
+    */
 
     return () => {
-      // Удаляем при размонтировании
-      highlightStyle.remove();
       codeViewerStyle.remove();
+      /* Закомментировали cleanup для highlight.js
+      highlightStyle.remove();
       script.remove();
+      */
     };
   }, []);
 
   return <Outlet />;
-} 
+}
